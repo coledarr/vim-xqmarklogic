@@ -36,7 +36,7 @@
 " such)
 " 
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      0.3.3
+" Version:      0.3.4
 
 if exists('g:loaded_vimxqmarklogic')
     finish
@@ -56,7 +56,7 @@ function! s:toggleCurlCmdAppend()
         let s:curlCmd=1
     endif
 endfunction
-command XQToggleShowDuration :execute s:toggleShowDuration()
+command XQtoggleShowDuration :execute s:toggleShowDuration()
 function! s:toggleShowDuration()
     if (s:showDuration)
         let s:showDuration=0
