@@ -1,5 +1,6 @@
 " vim-xqmarklogic.vim - man <Leader>B run against marklogic
 " 
+" Inspired partly by: http://superiorautomaticdictionary.com/vim-nirvana-interactive-xquery-with-marklogic
 " Assumes xq is setup
 " ==== xq.xqy ====
 "       xquery version "1.0-ml";
@@ -31,9 +32,11 @@
 " configured on a per buffer basis and maybe a default set in .vimrc
 " TODO add a real help doc
 " TODO only load for xquery files
+" TODO more options and settings will be needed (botright vs belowright and
+" such)
 " 
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      0.3.2
+" Version:      0.3.3
 
 if exists('g:loaded_vimxqmarklogic')
     finish
