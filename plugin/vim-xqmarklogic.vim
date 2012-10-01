@@ -30,17 +30,22 @@
 " (db http header can be set to override hardcoded default).  Best would be
 " configured on a per buffer basis and maybe a default set in .vimrc
 " TODO add a real help doc
+" TODO only load for xquery files
 " 
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      0.3
+" Version:      0.3.2
 
+if exists('g:loaded_vimxqmarklogic')
+    finish
+endif
+let g:loaded_vimxqmarklogic=1
 
 " Options
 let s:curlCmd=0
 let s:showDuration=1
 
 " Toggle Options
-command -buffer XQtoggleCurlCmdAppend :execute s:toggleCurlCmdAppend()
+command XQtoggleCurlCmdAppend :execute s:toggleCurlCmdAppend()
 function! s:toggleCurlCmdAppend()
     if (s:curlCmd)
         let s:curlCmd=0
@@ -48,7 +53,7 @@ function! s:toggleCurlCmdAppend()
         let s:curlCmd=1
     endif
 endfunction
-command -buffer XQToggleShowDuration :execute s:toggleShowDuration()
+command XQToggleShowDuration :execute s:toggleShowDuration()
 function! s:toggleShowDuration()
     if (s:showDuration)
         let s:showDuration=0
@@ -60,7 +65,7 @@ endfunction
 " Running the Query
 map <Leader>B :XQmlquery<cr>
 
-command -buffer XQmlquery :execute s:QueryMarkLogic(expand("%"))
+command XQmlquery :execute s:QueryMarkLogic(expand("%"))
 
 let s:host = "localhost"
 let s:uri = "http://"
@@ -77,7 +82,8 @@ function! s:QueryMarkLogic(fname)
     "wincmd P
  
     " Use a 'nofile' window
-    botright new
+    "botright new
+    belowright new
     setlocal buftype=nofile
     setlocal filetype=xml
 
