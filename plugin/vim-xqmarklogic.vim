@@ -59,6 +59,6 @@ function! s:QueryMarkLogic(fname)
     execute 'r! curl --digest --user ' . s:user . ':' . s:password . ' -s -X PUT -d@"' . a:fname . '" ' . s:uri . s:host . ':' . s:port  . s:xq
     "execut 'r! curl --digest --user admin:password -s -X PUT -d@"' . a:fname . '" http://localhost:8002/xq.xqy'
     
-    :%s/></></g
+    silent! :%s/></></g
     normal gg=G 
 endfunction
