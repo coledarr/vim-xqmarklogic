@@ -1,6 +1,6 @@
 " vim-xqmarklogic.vim - man <Leader>B run against marklogic
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      0.5.0
+" Version:      0.5.1
 " TODO: GetLatestVimScripts: ### ### :AutoInstall: vim-xqmarklogic
 " TODO: see *glvs-plugins*
 " 
@@ -31,7 +31,7 @@
 " TODO Consider a different script instead of xq.xqy.  Use XCC, RestFUL
 " interface (MarkLogic6 and later), or even just package up the xq.xqy
 " TODO add a real help doc
-" TODO only load for xquery files
+" TODO only load for xquery files, and better initialization
 " TODO output something useful when curl returns an error
 
 if exists('g:loaded_vimxqmarklogic')
@@ -43,44 +43,48 @@ let g:loaded_vimxqmarklogic=1
 let s:showCurlCmd=0
 let s:showDuration=1
 
-" Default Settings {{{
-if !exists('g:vimxqmarklogic_defaultUser')
-    let g:vimxqmarklogic_defaultUser='admin'
-endif
-let b:vimxqmarklogic_user=g:vimxqmarklogic_defaultUser
+" initialize Default Settings {{{
+function! s:initDefaultSettings()
+    if !exists('g:vimxqmarklogic_defaultUser')
+        let g:vimxqmarklogic_defaultUser='admin'
+    endif
+    let b:vimxqmarklogic_user=g:vimxqmarklogic_defaultUser
 
-" Should cause error when query is attempted
-if !exists('g:vimxqmarklogic_defaultPassword')
-    let g:vimxqmarklogic_defaultPassword=''
-    let b:vimxqmarklogic_password=''
-    unlet b:vimxqmarklogic_password
-endif
-let b:vimxqmarklogic_password=g:vimxqmarklogic_defaultPassword
+    " TODO Want error if no global password set
+    if !exists('g:vimxqmarklogic_defaultPassword')
+        let g:vimxqmarklogic_defaultPassword=''
+        let b:vimxqmarklogic_password=''
+        unlet b:vimxqmarklogic_password
+    endif
+    let b:vimxqmarklogic_password=g:vimxqmarklogic_defaultPassword
 
-if !exists('g:vimxqmarklogic_defaultURI')
-    let g:vimxqmarklogic_defaultURI='http://'
-endif
-let b:vimxqmarklogic_uri=g:vimxqmarklogic_defaultURI
+    if !exists('g:vimxqmarklogic_defaultURI')
+        let g:vimxqmarklogic_defaultURI='http://'
+    endif
+    let b:vimxqmarklogic_uri=g:vimxqmarklogic_defaultURI
 
-if !exists('g:vimxqmarklogic_defaultHost')
-    let g:vimxqmarklogic_defaultHost='localhost'
-endif
-let b:vimxqmarklogic_host=g:vimxqmarklogic_defaultHost
+    if !exists('g:vimxqmarklogic_defaultHost')
+        let g:vimxqmarklogic_defaultHost='localhost'
+    endif
+    let b:vimxqmarklogic_host=g:vimxqmarklogic_defaultHost
 
-if !exists('g:vimxqmarklogic_defaultPort')
-    let g:vimxqmarklogic_defaultPort='8002'
-endif
-let b:vimxqmarklogic_port=g:vimxqmarklogic_defaultPort
+    if !exists('g:vimxqmarklogic_defaultPort')
+        let g:vimxqmarklogic_defaultPort='8002'
+    endif
+    let b:vimxqmarklogic_port=g:vimxqmarklogic_defaultPort
 
-if !exists('g:vimxqmarklogic_defaultXq')
-    let g:vimxqmarklogic_defaultXq='/xq.xqy'
-endif
-let b:vimxqmarklogic_xq=g:vimxqmarklogic_defaultXq
+    if !exists('g:vimxqmarklogic_defaultXq')
+        let g:vimxqmarklogic_defaultXq='/xq.xqy'
+    endif
+    let b:vimxqmarklogic_xq=g:vimxqmarklogic_defaultXq
 
-if !exists('g:vimxqmarklogic_defaultDb')
-    let g:vimxqmarklogic_defaultDb="Documents"
-endif
-let b:vimxqmarklogic_db=g:vimxqmarklogic_defaultDb
+    if !exists('g:vimxqmarklogic_defaultDb')
+        let g:vimxqmarklogic_defaultDb="Documents"
+    endif
+    let b:vimxqmarklogic_db=g:vimxqmarklogic_defaultDb
+
+    let b:vimxqmarklogic_initialized=1
+endfunction
 " end of default Settings }}}
 
 " Toggle Options
@@ -108,6 +112,18 @@ function! s:setDatabase(db)
     let b:vimxqmarklogic_db = a:db
 endfunction
 
+" Display settings
+command XQdisplaySettings :execute s:DisplaySettings()
+function! s:DisplaySettings()
+    echo 'b:vimxqmarklogic_user	= ' . b:vimxqmarklogic_user
+    echo 'b:vimxqmarklogic_password	= ' . b:vimxqmarklogic_password
+    echo 'b:vimxqmarklogic_uri	= ' . b:vimxqmarklogic_uri
+    echo 'b:vimxqmarklogic_host	= ' . b:vimxqmarklogic_host
+    echo 'b:vimxqmarklogic_port	= ' . b:vimxqmarklogic_port
+    echo 'b:vimxqmarklogic_xq	= ' . b:vimxqmarklogic_xq
+    echo 'b:vimxqmarklogic_db	= ' . b:vimxqmarklogic_db
+endfunction
+
 " Running the Query
 map <Leader>B :XQmlquery<cr>
 
@@ -117,44 +133,18 @@ command XQmlquery :execute s:QueryMarkLogic(expand("%"))
 function! s:QueryMarkLogic(fname)
     let info        = ''
 
+    if !exists('b:vimxqmarklogic_initialized')
+        call s:initDefaultSettings()
+    endif
+
     " setup local settings
-    " use b:___ if present, else the g:___ value {{{
-    let l:user      = g:vimxqmarklogic_defaultUser
-    "let l:password  = g:vimxqmarklogic_defaultPassword
-    let l:uri       = g:vimxqmarklogic_defaultURI
-    let l:host      = g:vimxqmarklogic_defaultHost
-    let l:port      = g:vimxqmarklogic_defaultPort
-    let l:xq        = g:vimxqmarklogic_defaultXq
-    let l:db        = g:vimxqmarklogic_defaultDb
- 
-    if exists('b:vimxqmarklogic_user')
-        let l:user = b:vimxqmarklogic_user
-    endif
-
-    if exists('b:vimxqmarklogic_password')
-        let l:password = b:vimxqmarklogic_password
-    endif
-
-    if exists('b:vimxqmarklogic_uri')
-        let l:uri = b:vimxqmarklogic_uri
-    endif
-
-    if exists('b:vimxqmarklogic_host')
-        let l:host = b:vimxqmarklogic_host
-    endif
-
-    if exists('b:vimxqmarklogic_port')
-        let l:port = b:vimxqmarklogic_port
-    endif
-
-    if exists('b:vimxqmarklogic_xq')
-        let l:xq = b:vimxqmarklogic_xq
-    endif
-
-    if exists('b:vimxqmarklogic_db')
-        let l:db = b:vimxqmarklogic_db
-    endif
-    " end of local settings }}}
+    let l:user      = b:vimxqmarklogic_user
+    let l:password  = b:vimxqmarklogic_password
+    let l:uri       = b:vimxqmarklogic_uri
+    let l:host      = b:vimxqmarklogic_host
+    let l:port      = b:vimxqmarklogic_port
+    let l:xq        = b:vimxqmarklogic_xq
+    let l:db        = b:vimxqmarklogic_db
 
     " Could use preview window
     "let s:out = tempname()
