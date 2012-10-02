@@ -36,7 +36,7 @@
 " such)
 " 
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      0.3.4
+" Version:      0.4.1
 
 if exists('g:loaded_vimxqmarklogic')
     finish
@@ -44,16 +44,16 @@ endif
 let g:loaded_vimxqmarklogic=1
 
 " Options
-let s:curlCmd=0
+let s:showCurlCmd=0
 let s:showDuration=1
 
 " Toggle Options
-command XQtoggleCurlCmdAppend :execute s:toggleCurlCmdAppend()
-function! s:toggleCurlCmdAppend()
-    if (s:curlCmd)
-        let s:curlCmd=0
+command XQtoggleShowCurlCmd :execute s:toggleShowCurlCmd()
+function! s:toggleShowCurlCmd()
+    if (s:showCurlCmd)
+        let s:showCurlCmd=0
     else
-        let s:curlCmd=1
+        let s:showCurlCmd=1
     endif
 endfunction
 command XQtoggleShowDuration :execute s:toggleShowDuration()
@@ -65,21 +65,29 @@ function! s:toggleShowDuration()
     endif
 endfunction
 
+" Settings
+command -nargs=1 XQsetDatabase :execute s:setDatabase(<args>)
+
+function! s:setDatabase(db)
+    let s:db = a:db
+endfunction
+
 " Running the Query
 map <Leader>B :XQmlquery<cr>
 
 command XQmlquery :execute s:QueryMarkLogic(expand("%"))
 
-let s:host = "localhost"
-let s:uri = "http://"
-let s:port = "8002"
-let s:user = "admin"
-let s:password = "password"
-let s:xq = "/xq.xqy"
+let s:host = 'localhost'
+let s:uri = 'http://'
+let s:port = '8002'
+let s:user = 'admin'
+let s:password = 'password'
+let s:xq = '/xq.xqy'
 
 " Used for preview window
 "let s:out = tempname()
 function! s:QueryMarkLogic(fname)
+    let info = ''
     " Use preview window
     "pedit s:out
     "wincmd P
@@ -87,20 +95,28 @@ function! s:QueryMarkLogic(fname)
     " Use a 'nofile' window
     "botright new
     belowright new
+
+    if !exists('s:db')
+        let s:db = 'Documents'
+    endif
+    let info .= ' db="' . s:db . '"'
+
     setlocal buftype=nofile
     setlocal filetype=xml
+    let curlCmd='curl --digest --user ' . s:user . ':' . s:password . ' -s -X PUT -d@"' . a:fname . '" ' . s:uri . s:host . ':' . s:port  . s:xq . '?db='.s:db
 
-    if (s:curlCmd)
-        call append(0, '<!--  curl --digest --user ' . s:user . ':XXXXXX -s -X PUT -d@"' . a:fname . '" ' . s:uri . s:host . ':' . s:port  . s:xq  . '  -->')
+    if (s:showCurlCmd)
+        call append(0, '<!-- ' . curlCmd . '  -->')
     endif
 
     let start=reltime()
-    execute 'r! curl --digest --user ' . s:user . ':' . s:password . ' -s -X PUT -d@"' . a:fname . '" ' . s:uri . s:host . ':' . s:port  . s:xq
-    "execut 'r! curl --digest --user admin:password -s -X PUT -d@"' . a:fname . '" http://localhost:8002/xq.xqy'
+    execute 'r! ' . curlCmd
+    "execute 'r! curl --digest --user ' . s:user . ':' . s:password . ' -s -X PUT -d@"' . a:fname . '" ' . s:uri . s:host . ':' . s:port  . s:xq
     if (s:showDuration)
         let end=reltimestr(reltime(start))
-        call append(0, '<!-- query_duration="' . end .'" -->')
+        let info .= ' query_duration="' . end . '"'
     endif
+    call append(0, '<!-- ' . info .'" -->')
 
     
     silent! :%s/></></g
