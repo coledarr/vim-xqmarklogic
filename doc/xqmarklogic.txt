@@ -11,7 +11,7 @@ window
 	Options and Settings	|xqmarklogic-options|
 
 ==============================================================================
-1. Introduction					*xqmarklogic-inro*
+1. Introduction					*xqmarklogic-intro*
 
 xqmarklogic.vim maps <LEADER>B to run a xquery against MarkLogic
 server using curl and a custom App Server running a short xquery file.  It
