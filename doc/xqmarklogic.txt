@@ -13,9 +13,10 @@ window
 ==============================================================================
 1. Introduction					*xqmarklogic-intro*
 
-xqmarklogic maps <LEADER>B to run a xquery against MarkLogic
-server using curl and a custom App Server running a short xquery file.  It
-displays the results in a new window.  It was inspired by this webpage: 
+xqmarklogic maps <LEADER>B and <C-CR> (CTRL-RETURN like QueryConsole) to run a
+xquery against MarkLogic server using curl and a custom App Server running a
+short xquery file.  It displays the results in a new window.  It was inspired
+by this webpage: 
 http://superiorautomaticdictionary.com/vim-nirvana-interactive-xquery-with-marklogic
 
 Git repository at: github.com/coledarr/vim-xqmarklogic
@@ -139,12 +140,14 @@ g:xqmarklogic_defaultPort	- the default Port, if not set uses 8002
 				(which is used by MarkLogic by default and
 				wont work)
 g:xqmarklogic_defaultUser	- the default User, if not set uses 'admin'
-g:xqmarklogic_defaultPassword - the default password to use, if not set
+g:xqmarklogic_defaultPassword	- the default password to use, if not set
 				you will probably have problems.
 g:xqmarklogic_defaultScript	- the default name of the xq.xqy, if not set
 				uses '/xq.xqy'
-g:xqmarklogic_defaultDb	- the default Database to query against, if
+g:xqmarklogic_defaultDb		- the default Database to query against, if
 				not set uses 'Documents' 
+
+g:xqmarklogic_noMappings	- if set \B and <C-CR> wont be mapped
 	Example:
 		let g:xqmarklogic_defaultUser='labarbara_conrad'
 

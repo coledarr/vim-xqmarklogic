@@ -1,6 +1,6 @@
 " xquery.vim - man <Leader>B run against marklogic
 " Maintainer:   Darren Cole <http://github.com/coledarr/xqmarklogic>
-" Version:      0.7.0
+" Version:      0.7.1
 " TODO: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins*
 " 
@@ -147,7 +147,10 @@ function! s:DisplaySettings()
 endfunction
 
 " Running the Query
-map <Leader>B :XQmlquery<cr>
+if !exists('g:xqmarklogic_noMappings')
+    map <Leader>B :XQmlquery<cr>
+    map <C-CR> :XQmlquery<cr>
+endif
 command -buffer XQmlquery :execute s:QueryMarkLogic(expand("%"))
 function! s:QueryMarkLogic(fname)
     let info        = ''
