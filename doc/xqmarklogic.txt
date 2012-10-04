@@ -38,7 +38,7 @@ Couple ways to do this:
 	3. vundle https://github.com/gmarik/vundle
 
 See pathogen.vim's documentation to set it up (it's easy). Then put the
-vim-xqmarklogic directory in your ~/.vim/bundle directory, and run :Helptags
+xqmarklogic directory in your ~/.vim/bundle directory, and run :Helptags
 
 Vundle has even more features (can update plugins automatically) See the
 documentation from the link above.
@@ -52,7 +52,7 @@ database, and even has a free version called MarkLogic Express.
 This plugin was developed and used with MarkLogic6, but should work with
 earlier and probably later versions.
 
-Script is in the file vim-xqmarklogic/xq.xqry.  This script takes text input
+Script is in the file xqmarklogic/xq.xqry.  This script takes text input
 and runs it against the database using xdmp:eval.  This opens up your whole
 MarkLogic server to have arbitrary xquery run against any database by whoever
 is authorized to access this App Server. Read the |xqmarklogic-security|
