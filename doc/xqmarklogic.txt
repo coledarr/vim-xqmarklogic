@@ -1,17 +1,23 @@
 	xqmarklogic Documentation			*xqmarklogic*
+							*xqmarklogic.txt*
+
+Author: Darren Cole http://github.com/coledarr/vim-xqmarklogic
 
 Integrating MarkLogic xqueries into vim, and displays the result in another
-window
+window.  This is a filetype plugin that is only available when in an xquery
+file.
 
-1. Introduction			|xqmarklogic-intro|
-2.1 Installation			|xqmarklogic-install|
-2.2 Security Considerations	|xqmarklogic-security|
-3. Commands			|xqmarklogic-commands|
-4. Customization:
-	Options and Settings	|xqmarklogic-options|
+1. Introduction				|xqmarklogic-intro|
+2 Installation				|xqmarklogic-install|
+	MarkLogic configuration		|xqmarklogic-config-marklogic|
+	vimrc configuration		|xqmarklogic-config-vimrc|
+3. Security Considerations		|xqmarklogic-security|
+4. Commands				|xqmarklogic-commands|
+5. Customization:
+	Options and Settings		|xqmarklogic-options|
 
 ==============================================================================
-1. Introduction					*xqmarklogic-intro*
+INTRODUCTION						*xqmarklogic-intro*
 
 xqmarklogic maps <LEADER>B and <C-CR> (CTRL-RETURN like QueryConsole) to run a
 xquery against MarkLogic server using curl and a custom App Server running a
@@ -19,24 +25,39 @@ short xquery file.  It displays the results in a new window.  It was inspired
 by this webpage: 
 http://superiorautomaticdictionary.com/vim-nirvana-interactive-xquery-with-marklogic
 
-Git repository at: github.com/coledarr/vim-xqmarklogic
+Git repository at: http://github.com/coledarr/vim-xqmarklogic
 
 ==============================================================================
-2.1. Installation					*xqmarklogic-install*
+INSTALLATION						*xqmarklogic-install*
 
+This plugin will need to be installed.
+Couple ways to do this:
+	1. copy the doc/* and ftplugin/* to your cooresponding ~/.vim/
+	directories
+	2. pathogen.vim https://github.com/tpope/vim-pathogen
+	3. vundle https://github.com/gmarik/vundle
+
+See pathogen.vim's documentation to set it up (it's easy). Then put the
+vim-xqmarklogic directory in your ~/.vim/bundle directory, and run :Helptags
+
+Vundle has even more features (can update plugins automatically) See the
+documentation from the link above.
+
+MARKLOGIC CONFIGURATION				*xqmarklogic-config-marklogic*
 You will need MarkLogic running, a MarkLogic App Server setup to run a xquery,
 curl, and this xqmarklogic file type plugin.  MarkLogic provides an XML
 database, and even has a free version called MarkLogic Express.
-	See: <http://www.marklogic.com/>
+	See: http://www.marklogic.com/
 
 This plugin was developed and used with MarkLogic6, but should work with
-ealier and probably later versions.
+earlier and probably later versions.
 
 Script is in the file vim-xqmarklogic/xq.xqry.  This script takes text input
-and runs it agains the database using xdmp:eval.  This opens up your whole
-MarkLogic server to have arbitrary xquery run against any database.  This
-probably shouldn't be on the production server, and should be protected.  See
-MarkLogic documentation on how to do this.
+and runs it against the database using xdmp:eval.  This opens up your whole
+MarkLogic server to have arbitrary xquery run against any database by whoever
+is authorized to access this App Server. Read the |xqmarklogic-security|
+section.  This probably shouldn't be on the production server, and should be
+protected.
 
 In MarkLogic Admin interface go to Group->Default->App Servers, then the
 "Create HTTP" tab.  Then fill in a few fields.
@@ -51,44 +72,38 @@ server.
 curl can support SSL, but the plugin isn't setup to support this.  Patches
 welcome.  wget doesn't work, again patches welcome.
 
-This plugin will need to be installed.
-Couple ways to do this:
-	1. copy the doc/* and ftplugin/* to your cooresponding ~/.vim/
-	directories
-	2. pathogen.vim <https://github.com/tpope/vim-pathogen>
-	3. vundle <https://github.com/gmarik/vundle>
+VIMRC CONFIGURATION				*xqmarklogic-config-vimrc*
+There are a few settings needed in your |vimrc| file
 
-See pathogen.vim's documentation to set it up (it's easy). Then put the
-vim-xqmarklogic directory in your ~/.vim/bundle directory, and run :Helptags
-
-Vundle has even more features (can update plugins), but takes a little more
-setup.  See the documentation from the link above.
-
-Then a few settings will need to be added to your |.vimrc| file:
-
-Use the port number you set when configuring the App Server, not 8002
+Use the port number you set when configuring the App Server, not the
+default 8002 >
 	let g:xqmarklogic_defaultPort='8002'
-Use the user and password needed to access the App Server you setup
+<
+
+Use the user and password needed to access the App Server you setup >
 	let g:xqmarklogic_defaultUser='admin'
 	let g:xqmarklogic_defaultPassword='password'
+<
+
 If MakrLogic isn't running on the localhost, you'll need to add the host as
-well
+well >
 	let g:xqmarklogic_defaultHost='marklogichost'
+<
 
 For more details and other options and setting see |xqmarklogic-options|
 These settings can be set differently in different buffers.
 
-=======================================
-2.2 Security Considerations			*xqmarklogic-security*
+SECURITY CONSIDERATIONS				*xqmarklogic-security*
 
 As mentioned above xq.xqy has some security considerations.  It can run any
 xquery against any of the MarkLogic databases.  It is only as protected as the
-App Server (password in the clear with http by default).  The xqmarklogic
-doesn't support ssl now, but that could be added.  So be aware.
+App Server (password in the clear with http by default).  xqmarklogic
+doesn't support ssl now, but that could be added (patches welcome).  So be
+aware.
 
 Second issue is less obvious and has the potential to expose the MarkLogic
 password to everyone who can login into the local machine.  Vim stores command
-history in ~/.viminfo. If you set and |xqmarklogic-options| below (particularlly
+history in ~/.viminfo. If you set and |xqmarklogic-options| below (particularly
 the one for the MarkLogic password) from command mode, those commands are
 stored in the viminfo file.  Pull requests with fixes for this are welcome.
 
@@ -97,12 +112,12 @@ stored in the viminfo file.  Pull requests with fixes for this are welcome.
 3. Commands					*xqmarklogic-commands*
 
 <leader>B	Run current buffer as an xquery against the MarkLogic
-		Appserver you setup earlier.  This mapping runs XQmlquery, so
+		App Server you setup earlier.  This mapping runs XQmlquery, so
 		it is easy to remap this if needed.
 
 XQtoggleShowCurlCmd	toggles showing curl command used in the output
 			window in an XML comment.  It is off by default since
-			the command contains "--" and thus can't be in valid
+			the command contains "--" and thus can't be in a valid
 			XML comment.
 
 XQtoggleShowDuration	toggle showing the duration of the query.  On by
@@ -123,15 +138,15 @@ XQsetScript		sets the script to use to the string argument
 XQsetDatabase		sets the database to query against to the string
 			argument.
 
-XQdisplaySettings	Displays what the current buffer settings are, they
-			are currentlyt NOT initialized until after the first
-			query.
+XQdisplaySettings	Displays what the current buffer settings are.
+
+XQmlquery		Run the current buffer against the MarkLogic server
 
 
 ==============================================================================
 4. Customization: Options and Settings		*xqmarklogic-options*
 
-	Global default values can be set in you |.vimrc| file.
+	Global default values can be set in you |vimrc| file.
 
 g:xqmarklogic_defaultHost	- the default Host name to use, if not set
 				uses 'localhost'
@@ -148,8 +163,9 @@ g:xqmarklogic_defaultDb		- the default Database to query against, if
 				not set uses 'Documents' 
 
 g:xqmarklogic_noMappings	- if set \B and <C-CR> wont be mapped
-	Example:
+	Example: >
 		let g:xqmarklogic_defaultUser='labarbara_conrad'
+<
 
 	Several of these values can be set on a per buffer basis, here are
 the corresponding 
@@ -161,7 +177,8 @@ b:xqmarklogic_user	corresponds to: g:xqmarklogic_defaultUser
 b:xqmarklogic_password	corresponds to: g:xqmarklogic_defaultPassword
 b:xqmarklogic_script	corresponds to: g:xqmarklogic_defaultScript
 b:xqmarklogic_db	corresponds to: g:xqmarklogic_defaultDb
-	Example run when the cursor is in the xquery file you want it set to
+	Example run when the cursor is in the xquery file you want it set to: >
 		:let b:xqmarklogic_password='flexo_is_the_greatest'
+<
 
-# vim: textwidth=78 noexpandtab softtabstop=8 shiftwidth=8 syntax=help
+ vim:tw=78:ts=8:ft=help:norl:
