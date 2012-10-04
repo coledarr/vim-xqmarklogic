@@ -1,7 +1,7 @@
-" xquery.vim - man <Leader>B run against marklogic
+" xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/xqmarklogic>
-" Version:      0.7.1
-" TODO: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
+" Version:      1.0.0
+" TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins*
 " 
 " Inspired partly by: http://superiorautomaticdictionary.com/vim-nirvana-interactive-xquery-with-marklogic
@@ -24,15 +24,10 @@
 " The above script will execute whatever it is sent with xdmp:eval, so it can do
 " pretty anything to the database
 "
-" Assumes xml responses, for now tries to break up lines and re-indent (TODO better
-" would be to fix the xquery output) For large responses this can be slow
+" Assumes xml responses, for now tries to break up lines and re-indent For
+" large responses this can be slow
 "
-" TODO Cleanup for release
 " TODO Prompt for password if unset
-" TODO Consider a different script instead of xq.xqy.  Use XCC, RestFUL
-" interface (MarkLogic6 and later), or even just package up the xq.xqy
-" TODO add a real help doc
-" TODO only load for xquery files, and better initialization
 " TODO output something useful when curl returns an error
 
 
