@@ -4,7 +4,7 @@ xqmarklogic
 Vim filetype plugin enables you to run xqueries files against a MarkLogic
 server, it displays the results in a separate window.
 
-* [See](http://www.vim.org)
+* [See](http://www.vim.org/scripts/script.php?script_id=4255)
 * [Source](github.com/coledarr/vim-xqmarklogic)
 
 Requirements
