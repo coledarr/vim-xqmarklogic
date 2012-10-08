@@ -1,8 +1,8 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.0
+" Version:      1.0.1
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
-" TODO: see *glvs-plugins*
+" TODO: see *glvs-plugins* might not work, but should at least try
 " 
 " Inspired partly by: http://superiorautomaticdictionary.com/vim-nirvana-interactive-xquery-with-marklogic
 "
@@ -36,30 +36,35 @@ if exists('b:loaded_xqmarklogic')
 endif
 let b:loaded_xqmarklogic=1
 
-" Options
-let s:showCurlCmd=0
-let s:showDuration=1
-
 " Toggle Options
 command -buffer XQtoggleShowCurlCmd :execute s:toggleShowCurlCmd()
 function! s:toggleShowCurlCmd()
-    if (s:showCurlCmd)
-        let s:showCurlCmd=0
+    if (b:xqmarklogic_showCurlCmd)
+        let b:xqmarklogic_showCurlCmd=0
     else
-        let s:showCurlCmd=1
+        let b:xqmarklogic_showCurlCmd=1
     endif
 endfunction
 command -buffer XQtoggleShowDuration :execute s:toggleShowDuration()
 function! s:toggleShowDuration()
-    if (s:showDuration)
-        let s:showDuration=0
+    if (b:xqmarklogic_showDuration)
+        let b:xqmarklogic_showDuration=0
     else
-        let s:showDuration=1
+        let b:xqmarklogic_showDuration=1
+    endif
+endfunction
+command -buffer XQtoggleOutCleanup :execute s:toggleOutCleanup()
+function! s:toggleOutCleanup()
+    if (b:xqmarklogic_noOutCleanup)
+        let b:xqmarklogic_noOutCleanup=0
+    else
+        let b:xqmarklogic_noOutCleanup=1
     endif
 endfunction
 
 " Settings, init, & Commands to change them
 function! s:initSettings()
+    " Buffer settings
     if !exists('g:xqmarklogic_defaultUser')
         let g:xqmarklogic_defaultUser='admin'
     endif
@@ -91,10 +96,30 @@ function! s:initSettings()
         let g:xqmarklogic_defaultDb="Documents"
     endif
     let b:xqmarklogic_db=g:xqmarklogic_defaultDb
-    command -buffer -nargs=1 XQsetUser :execute s:setUser(<args>)
+
+    " Buffer options
+    if !exists('g:xqmarklogic_defaultShowCurlCmd')
+        let g:xqmarklogic_defaultShowCurlCmd=0
+    endif
+    let b:xqmarklogic_showCurlCmd=g:xqmarklogic_defaultShowCurlCmd
+    if !exists('g:xqmarklogic_defaultshowDuration')
+        let g:xqmarklogic_defaultShowDuration=0
+    endif
+    let b:xqmarklogic_showDuration=g:xqmarklogic_defaultShowDuration
+
+    if !exists('g:xqmarklogic_defaultNoOutCleanup')
+        let g:xqmarklogic_defaultNoOutCleanup=0
+    endif
+    let b:xqmarklogic_noOutCleanup=g:xqmarklogic_defaultNoOutCleanup
+
+    " global settings
+    if !exists('g:xqmarklogic_noMappings')
+        let g:xqmarklogic_noMappings=0
+    endif
 endfunction
 call s:initSettings()
 
+command -buffer -nargs=1 XQsetUser :execute s:setUser(<args>)
 function! s:setUser(user)
     let b:xqmarklogic_user = a:user
 endfunction
@@ -139,10 +164,16 @@ function! s:DisplaySettings()
     echo 'b:xqmarklogic_port	= ' . b:xqmarklogic_port
     echo 'b:xqmarklogic_script	= ' . b:xqmarklogic_script
     echo 'b:xqmarklogic_db	= ' . b:xqmarklogic_db
+    echo ' --- options --- '
+    echo 'b:xqmarklogic_noOutCleanup	= ' . b:xqmarklogic_noOutCleanup
+    echo 'b:showCurlCmd	        = ' . b:showCurlCmd
+    echo 'b:showDuration	= ' . b:showDuration
+    echo ' --- global ---'
+    echo 'g:xqmarklogic_noMappings	= ' . g:xqmarklogic_noMappings
 endfunction
 
 " Running the Query
-if !exists('g:xqmarklogic_noMappings')
+if (!g:xqmarklogic_noMappings)
     map <Leader>B :XQmlquery<cr>
     map <C-CR> :XQmlquery<cr>
 endif
@@ -156,8 +187,11 @@ function! s:QueryMarkLogic(fname)
     let l:uri       = b:xqmarklogic_uri
     let l:host      = b:xqmarklogic_host
     let l:port      = b:xqmarklogic_port
-    let l:script        = b:xqmarklogic_script
+    let l:script    = b:xqmarklogic_script
     let l:db        = b:xqmarklogic_db
+    let l:noOutClean = b:xqmarklogic_noOutCleanup
+    let l:showCurlCmd = b:xqmarklogic_showCurlCmd
+    let l:showDuration = b:xqmarklogic_showDuration
 
     " Could use preview window
     "let s:out = tempname()
@@ -174,22 +208,25 @@ function! s:QueryMarkLogic(fname)
     setlocal filetype=xml
     let curlCmd='curl --digest --user ' . l:user . ':' . l:password . ' -s -X PUT -d@"' . a:fname . '" ' . l:uri . l:host . ':' . l:port  . l:script . '?db='.l:db
 
-    if (s:showCurlCmd)
+    if (l:showCurlCmd)
         call append(0, '<!-- ' . curlCmd . '  -->')
     endif
 
     let start=reltime()
     execute 'r! ' . curlCmd
 
-    if (s:showDuration)
+    if (l:showDuration)
         let end=reltimestr(reltime(start))
         let info .= ' query_duration="' . end . '"'
     endif
     call append(0, '<!-- ' . info .'" -->')
 
     " cleanup output
-    silent! :%s/></></g
-    normal gg=G 
+    if (!l:noOutClean)
+        silent! :%s/></></g
+        normal gg=G 
+        setlocal foldlevel=10
+    endif
 endfunction
 
 " vim: foldmethod=marker foldlevel=5:
