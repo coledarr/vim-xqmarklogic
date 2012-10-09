@@ -125,6 +125,9 @@ XQtoggleShowCurlCmd	toggles showing curl command used in the output
 XQtoggleShowDuration	toggle showing the duration of the query.  On by
 			default.
 
+XQtoggleShowDb		toggle showing the Database used by the query.  On by
+			default.
+
 XQtoggleOutCleanup	toggle if xml output is cleaned up or not. (insert
 			newlines between empty adjacent tags, reindent XML,
 			set foldlevel=10)
@@ -174,11 +177,16 @@ g:xqmarklogic_defaultNoOutCleanup	- Turns on (1) or off (0) Output
 				space, reindent XML, and set foldlevel=10
 g:xqmarklogic_defaultShowDuration	- Turns on (1) or off (0) query
 				duration in output. Default true (1).  Is
-				included in output in xml comment
+				included in output in xml comment.  Shown in
+				same comment that database used is output in.
+g:xqmarklogic_defaultshowDb	- Turns on (1) or off (0) showing the Database
+				in query output.  Default to True (1).  Shown
+				in same comment that duration output is in.
 g:xqmarklogic_defaultCurlCmd		- turns on (1) or off (0) query curl
 				command used in query output.  Defaults to off
-				since command contains "--" which is valid in
-				the XML comment information is included in
+				since command contains "--" which is invalid
+				in the XML comments.  Shown in comment
+				separate from other above settings.
 g:xqmarklogic_noMappings	- if true (set to 1) then \B and <C-CR> wont be mapped
 	Examples: >
 		let g:xqmarklogic_defaultUser='labarbara_conrad'

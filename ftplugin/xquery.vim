@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.1
+" Version:      1.0.2
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -53,6 +53,14 @@ function! s:toggleShowDuration()
         let b:xqmarklogic_showDuration=1
     endif
 endfunction
+command -buffer XQtoggleShowDb :execute s:toggleShowDb()
+function! s:toggleShowDb()
+    if (b:xqmarklogic_showDb)
+        let b:xqmarklogic_showDb=0
+    else
+        let b:xqmarklogic_showDb=1
+    endif
+endfunction
 command -buffer XQtoggleOutCleanup :execute s:toggleOutCleanup()
 function! s:toggleOutCleanup()
     if (b:xqmarklogic_noOutCleanup)
@@ -103,9 +111,13 @@ function! s:initSettings()
     endif
     let b:xqmarklogic_showCurlCmd=g:xqmarklogic_defaultShowCurlCmd
     if !exists('g:xqmarklogic_defaultshowDuration')
-        let g:xqmarklogic_defaultShowDuration=0
+        let g:xqmarklogic_defaultShowDuration=1
     endif
     let b:xqmarklogic_showDuration=g:xqmarklogic_defaultShowDuration
+    if !exists('g:xqmarklogic_defaultshowDb')
+        let g:xqmarklogic_defaultShowDb=1
+    endif
+    let b:xqmarklogic_showDb=g:xqmarklogic_defaultShowDb
 
     if !exists('g:xqmarklogic_defaultNoOutCleanup')
         let g:xqmarklogic_defaultNoOutCleanup=0
@@ -166,8 +178,9 @@ function! s:DisplaySettings()
     echo 'b:xqmarklogic_db	= ' . b:xqmarklogic_db
     echo ' --- options --- '
     echo 'b:xqmarklogic_noOutCleanup	= ' . b:xqmarklogic_noOutCleanup
-    echo 'b:showCurlCmd	        = ' . b:showCurlCmd
-    echo 'b:showDuration	= ' . b:showDuration
+    echo 'b:xqmarklogic_showCurlCmd	= ' . b:xqmarklogic_showCurlCmd
+    echo 'b:xqmarklogic_showDuration	= ' . b:xqmarklogic_showDuration
+    echo 'b:xqmarklogic_showDb		= ' . b:xqmarklogic_showDb
     echo ' --- global ---'
     echo 'g:xqmarklogic_noMappings	= ' . g:xqmarklogic_noMappings
 endfunction
@@ -192,6 +205,8 @@ function! s:QueryMarkLogic(fname)
     let l:noOutClean = b:xqmarklogic_noOutCleanup
     let l:showCurlCmd = b:xqmarklogic_showCurlCmd
     let l:showDuration = b:xqmarklogic_showDuration
+    let l:showDb    = b:xqmarklogic_showDb
+    let l:info=""
 
     " Could use preview window
     "let s:out = tempname()
@@ -201,8 +216,11 @@ function! s:QueryMarkLogic(fname)
     " Use a 'nofile' window
     "botright new
     belowright new
+    
 
-    let info .= ' db="' . l:db . '"'
+    if (l:showDb)
+        let l:info .= ' db="' . l:db . '"'
+    endif
 
     setlocal buftype=nofile
     setlocal filetype=xml
@@ -217,9 +235,11 @@ function! s:QueryMarkLogic(fname)
 
     if (l:showDuration)
         let end=reltimestr(reltime(start))
-        let info .= ' query_duration="' . end . '"'
+        let l:info .= ' query_duration="' . end . '"'
     endif
-    call append(0, '<!-- ' . info .'" -->')
+    if (l:info != "" )
+        call append(0, '<!-- ' . l:info .'" -->')
+    endif
 
     " cleanup output
     if (!l:noOutClean)
