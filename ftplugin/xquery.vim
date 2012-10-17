@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.3
+" Version:      1.0.4
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -217,6 +217,10 @@ function! s:QueryMarkLogic(fname)
     let l:showDuration = b:xqmarklogic_showDuration
     let l:showDb    = b:xqmarklogic_showDb
     let l:info=""
+
+    if &modified
+        echoerr "Buffer has been changed, using last saved version"
+    endif
 
     " Could use preview window
     "let s:out = tempname()
