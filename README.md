@@ -50,6 +50,6 @@ For more details and setting up MarkLogic run this in vim once you've done the a
     :help xqmarklogic-install
 
 
-It works well with [xqyeryvim](http://www.vim.org/scripts/script.php?script_id=3611) [xqueryvim source at](http://github.com/dlam26/xqueryvim)
+It works well with [xqyeryvim](http://www.vim.org/scripts/script.php?script_id=3611) source:[xqueryvim](http://github.com/dlam26/xqueryvim)
 
-If you'd like to run XPath in vim see [vim-xpath](http://www.vim.org/scripts/script.php?script_id=3537) [vim-xpath source at](https://github.com/actionshrimp/vim-xpath)
+If you'd like to run XPath in vim see [vim-xpath](http://www.vim.org/scripts/script.php?script_id=3537) source:[vim-xpath](https://github.com/actionshrimp/vim-xpath)
