@@ -7,6 +7,9 @@ Integrating MarkLogic xqueries into vim, and displays the result in another
 window.  This is a filetype plugin that is only available when in an XQuery
 file.
 
+Note Vim 7.3 and later hides '|' and '*'.  If using an earlier version ignore
+any '*' or '|' surrounding Command and variable names.
+
 1. Introduction				|xqmarklogic-intro|
 2 Installation				|xqmarklogic-install|
 	MarkLogic configuration		|xqmarklogic-config-marklogic|
@@ -31,11 +34,12 @@ Git repository at: http://github.com/coledarr/vim-xqmarklogic
 INSTALLATION						*xqmarklogic-install*
 
 This plugin will need to be installed.
-Couple ways to do this:
-	1. copy the doc/* and ftplugin/* to your cooresponding ~/.vim/
-	directories.  Run :helptags
-	2. pathogen.vim https://github.com/tpope/vim-pathogen
-	3. vundle https://github.com/gmarik/vundle
+Few ways to do this:
+	1. use pathogen.vim https://github.com/tpope/vim-pathogen
+	2. use vundle https://github.com/gmarik/vundle
+	3. use another plugin manager
+	4. Otherwise copy the doc/* and ftplugin/* to your cooresponding ~/.vim/
+	directories (create them if they don't exist yet).  Run :helptags
 
 See pathogen.vim's documentation to set it up (it's easy). Then put the
 xqmarklogic directory in your ~/.vim/bundle directory, and run :Helptags
@@ -50,7 +54,7 @@ database, and even has a free version called MarkLogic Express.
 	See: http://www.marklogic.com/
 
 This plugin was developed and used with MarkLogic6, but should work with
-earlier and probably later versions.
+earlier and later versions.
 
 Script is in the file xqmarklogic/xq.xqry.  This script takes text input
 and runs it against the database using xdmp:eval.  This opens up your whole
@@ -103,7 +107,7 @@ aware.
 
 Second issue is less obvious and has the potential to expose the MarkLogic
 password to everyone who can login into the local machine.  Vim stores command
-history in ~/.viminfo. If you set and |xqmarklogic-options| below (particularly
+history in ~/.viminfo. If you set and use |xqmarklogic-options| below (particularly
 the one for the MarkLogic password) from command mode, those commands are
 stored in the viminfo file.  Pull requests with fixes for this are welcome.
 
@@ -117,39 +121,45 @@ stored in the viminfo file.  Pull requests with fixes for this are welcome.
 <CTRL-CR>	same as above.  Control-Return that MarkLogic QueryConsole
 		uses
 
-XQtoggleShowCurlCmd	toggles showing curl command used in the output
+NOTE If you want your own mappings set |g:xqmarklogic_noMappings| in your
+vimrc to skip setting the above.
+
+*XQtoggleShowCurlCmd*	toggles showing curl command used in the output
 			window in an XML comment.  It is off by default since
 			the command contains "--" and thus can't be in a valid
 			XML comment.
 
-XQtoggleShowDuration	toggle showing the duration of the query.  On by
+*XQtoggleShowDuration*	toggle showing the duration of the query.  On by
 			default.
 
-XQtoggleShowDb		toggle showing the Database used by the query.  On by
+*XQtoggleShowDb*		toggle showing the Database used by the query.  On by
 			default.
 
-XQtoggleOutCleanup	toggle if xml output is cleaned up or not. (insert
+*XQtoggleOutCleanup*	toggle if xml output is cleaned up or not. (insert
 			newlines between empty adjacent tags, reindent XML,
 			set foldlevel=10)
 
-XQsetUser		sets the user to use for login to the string argument
+*XQsetUser*		sets the user to use for login to the string argument
 
-XQsetPassword		sets the password to use for login to the string
+*XQsetPassword*		sets the password to use for login to the string
 			argument
-XQsetURI		sets the URI to use to the string argument
+*XQsetURI*		sets the URI to use to the string argument
 
-XQsetHost		sets the host to use to the string argument
+*XQsetHost*		sets the host to use to the string argument
 
-XQsetPort		sets the port to use to the argument
+*XQsetPort*		sets the port to use to the argument
 
-XQsetScript		sets the script to use to the string argument
+*XQsetScript*		sets the script to use to the string argument
 
-XQsetDatabase		sets the database to query against to the string
+*XQsetDatabase*		sets the database to query against to the string
 			argument.
 
-XQdisplaySettings	Displays what the current buffer settings are.
+*XQsetMaxLinesIndent*	sets the max lines to indent in the results window,
+			default to 400.
 
-XQmlquery		Run the current buffer against the MarkLogic server
+*XQdisplaySettings*	Displays what the current buffer settings are.
+
+*XQmlquery*		Run the current buffer against the MarkLogic server
 			and display the output in a new window.
 
 
@@ -158,36 +168,39 @@ XQmlquery		Run the current buffer against the MarkLogic server
 
 	Global default values can be set in you |vimrc| file.
 
-g:xqmarklogic_defaultHost	- the default Host name to use, if not set
+*g:xqmarklogic_defaultHost*	- the default Host name to use, if not set
 				uses 'localhost'
-g:xqmarklogic_defaultURI	- the default URI, if not set uses 'http://'
-g:xqmarklogic_defaultPort	- the default Port, if not set uses 8002
+*g:xqmarklogic_defaultURI*	- the default URI, if not set uses 'http://'
+*g:xqmarklogic_defaultPort*	- the default Port, if not set uses 8002
 				(which is used by MarkLogic by default and
 				wont work)
-g:xqmarklogic_defaultUser	- the default User, if not set uses 'admin'
-g:xqmarklogic_defaultPassword	- the default password to use, if not set
+*g:xqmarklogic_defaultUser*	- the default User, if not set uses 'admin'
+*g:xqmarklogic_defaultPassword*	- the default password to use, if not set
 				you will probably have problems.
-g:xqmarklogic_defaultScript	- the default name of the xq.xqy, if not set
+*g:xqmarklogic_defaultScript*	- the default name of the xq.xqy, if not set
 				uses '/xq.xqy'
-g:xqmarklogic_defaultDb		- the default Database to query against, if
+*g:xqmarklogic_defaultDb*		- the default Database to query against, if
 				not set uses 'Documents'
-g:xqmarklogic_defaultNoOutCleanup	- Turns on (1) or off (0) Output
+*g:xqmarklogic_defaultMaxLinesIndent*	- if results are longer than this many
+				lines skip trying to indent them.  Defaults to
+				400.
+*g:xqmarklogic_defaultNoOutCleanup*	- Turns on (1) or off (0) Output
 				Cleanup.  Default true (1). Cleanup: split
 				lines where tags are not separated by a
 				space, reindent XML, and set foldlevel=10
-g:xqmarklogic_defaultShowDuration	- Turns on (1) or off (0) query
+*g:xqmarklogic_defaultShowDuration*	- Turns on (1) or off (0) query
 				duration in output. Default true (1).  Is
 				included in output in xml comment.  Shown in
 				same comment that database used is output in.
-g:xqmarklogic_defaultshowDb	- Turns on (1) or off (0) showing the Database
+*g:xqmarklogic_defaultShowDb*	- Turns on (1) or off (0) showing the Database
 				in query output.  Default to True (1).  Shown
 				in same comment that duration output is in.
-g:xqmarklogic_defaultCurlCmd		- turns on (1) or off (0) query curl
+*g:xqmarklogic_defaultShowCurlCmd*		- turns on (1) or off (0) query curl
 				command used in query output.  Defaults to off
 				since command contains "--" which is invalid
 				in the XML comments.  Shown in comment
 				separate from other above settings.
-g:xqmarklogic_noMappings	- if true (set to 1) then \B and <C-CR> wont be mapped
+*g:xqmarklogic_noMappings*	- if true (set to 1) then \B and <C-CR> wont be mapped
 	Examples: >
 		let g:xqmarklogic_defaultUser='labarbara_conrad'
 		let g:xqmarklogic_defaultPassword='barbados_or_hermes'
@@ -198,19 +211,20 @@ g:xqmarklogic_noMappings	- if true (set to 1) then \B and <C-CR> wont be mapped
 various commands described in |xqmarklogic-commands|. They can be set via
 buffer variables below
 
-b:xqmarklogic_user	corresponds to g:xqmarklogic_defaultUser
-b:xqmarklogic_password	corresponds to g:xqmarklogic_defaultPassword
-b:xqmarklogic_uri	corresponds to g:xqmarklogic_defaultURI
-b:xqmarklogic_host	corresponds to g:xqmarklogic_defaultHost
-b:xqmarklogic_port	corresponds to g:xqmarklogic_defaultPort
-b:xqmarklogic_script	corresponds to g:xqmarklogic_defaultScript
-b:xqmarklogic_db	corresponds to g:xqmarklogic_defaultDb
-b:xqmarklogic_showCurlCmd	corresponds to g:xqmarklogic_showCurlCmd
-b:xqmarklogic_showDuration	corresponds to g:xqmarklogic_defaultShowDuration
-b:xqmarklogic_noOutCleanup	corresponds to g:xqmarklogic_defaultNoOutCleanup
+b:xqmarklogic_user	corresponds to |g:xqmarklogic_defaultUser|
+b:xqmarklogic_password	corresponds to |g:xqmarklogic_defaultPassword|
+b:xqmarklogic_uri	corresponds to |g:xqmarklogic_defaultURI|
+b:xqmarklogic_host	corresponds to |g:xqmarklogic_defaultHost|
+b:xqmarklogic_port	corresponds to |g:xqmarklogic_defaultPort|
+b:xqmarklogic_script	corresponds to |g:xqmarklogic_defaultScript|
+b:xqmarklogic_db	corresponds to |g:xqmarklogic_defaultDb|
+b:xmarklogic_maxLinesIndent corresponds to |g:xqmarklogic_defaultMaxLinesIndent|
+b:xqmarklogic_showCurlCmd	corresponds to |g:xqmarklogic_defaultShowCurlCmd|
+b:xqmarklogic_showDuration	corresponds to |g:xqmarklogic_defaultShowDuration|
+b:xqmarklogic_noOutCleanup	corresponds to |g:xqmarklogic_defaultNoOutCleanup|
 
-	Example run when the cursor is in the XQuery file you want it set to: >
-		:let b:xqmarklogic_password='flexo'
+	Example run when the cursor is in the XQuery file you want it set for: >
+		:let b:xqmarklogic_user='flexo'
 		:let b:xqmarklogic_password='flexo_is_the_greatest'
 <
 

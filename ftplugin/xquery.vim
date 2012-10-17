@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.2
+" Version:      1.0.3
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -104,6 +104,10 @@ function! s:initSettings()
         let g:xqmarklogic_defaultDb="Documents"
     endif
     let b:xqmarklogic_db=g:xqmarklogic_defaultDb
+    if !exists('g:xqmarklogic_defaultMaxLinesIndent')
+        let g:xqmarklogic_defaultMaxLinesIndent="400"
+    endif
+    let b:xqmarklogic_maxLinesIndent=g:xqmarklogic_defaultMaxLinesIndent
 
     " Buffer options
     if !exists('g:xqmarklogic_defaultShowCurlCmd')
@@ -166,6 +170,11 @@ function! s:setDatabase(db)
     let b:xqmarklogic_db = a:db
 endfunction
 
+command -buffer -nargs=1 XQsetMaxLinesIndent :execute s:setMaxLinesIndent(<args>)
+function! s:setMaxLinesIndent(lines)
+    let b:xqmarklogic_maxLinesIndent=a:lines
+endfunction
+
 " Display settings
 command -buffer XQdisplaySettings :execute s:DisplaySettings()
 function! s:DisplaySettings()
@@ -202,6 +211,7 @@ function! s:QueryMarkLogic(fname)
     let l:port      = b:xqmarklogic_port
     let l:script    = b:xqmarklogic_script
     let l:db        = b:xqmarklogic_db
+    let l:maxLinesIndent = b:xqmarklogic_maxLinesIndent
     let l:noOutClean = b:xqmarklogic_noOutCleanup
     let l:showCurlCmd = b:xqmarklogic_showCurlCmd
     let l:showDuration = b:xqmarklogic_showDuration
@@ -244,8 +254,10 @@ function! s:QueryMarkLogic(fname)
     " cleanup output
     if (!l:noOutClean)
         silent! :%s/></></g
-        normal gg=G 
-        setlocal foldlevel=10
+        if line('$') < l:maxLinesIndent
+            normal gg=G 
+            setlocal foldlevel=10
+        endif
     endif
 endfunction
 
