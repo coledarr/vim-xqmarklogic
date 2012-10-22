@@ -197,39 +197,39 @@ CUSTOMIZATION						*xqmarklogic-options*
 
 Global default values can be set in you |vimrc| file.
 
-*g:xqmarklogic_defaultHost*	- the default Host name to use, if not set
+*g:xqmarklogic_defaultHost*	The default Host name to use, if not set
 				uses 'localhost'
-*g:xqmarklogic_defaultURI*	- the default URI, if not set uses 'http://'
-*g:xqmarklogic_defaultPort*	- the default Port, if not set uses 8002
+*g:xqmarklogic_defaultURI*	The default URI, if not set uses 'http://'
+*g:xqmarklogic_defaultPort*	The default Port, if not set uses 8002
 				(which is used by MarkLogic by default and
 				wont work)
-*g:xqmarklogic_defaultUser*	- the default User, if not set uses 'admin'
-*g:xqmarklogic_defaultPassword*	- the default password to use, if not set
+*g:xqmarklogic_defaultUser*	The default User, if not set uses 'admin'
+*g:xqmarklogic_defaultPassword*	The default password to use, if not set
 				you will probably have problems.
-*g:xqmarklogic_defaultScript*	- the default name of the xq.xqy, if not set
+*g:xqmarklogic_defaultScript*	The default name of the xq.xqy, if not set
 				uses '/xq.xqy'
-*g:xqmarklogic_defaultDb*		- the default Database to query against, if
+*g:xqmarklogic_defaultDb*		The default Database to query against, if
 				not set uses 'Documents'
-*g:xqmarklogic_defaultMaxLinesIndent*	- if results are longer than this many
+*g:xqmarklogic_defaultMaxLinesIndent*	If results are longer than this many
 				lines skip trying to indent them.  Defaults to
 				400.
-*g:xqmarklogic_defaultNoOutCleanup*	- Turns on (1) or off (0) Output
+*g:xqmarklogic_defaultNoOutCleanup*	Turns on (1) or off (0) Output
 				Cleanup.  Default true (1). Cleanup: split
 				lines where tags are not separated by a
 				space, reindent XML, and set foldlevel=10
-*g:xqmarklogic_defaultShowDuration*	- Turns on (1) or off (0) query
+*g:xqmarklogic_defaultShowDuration*	Turns on (1) or off (0) query
 				duration in output. Default true (1).  Is
 				included in output in xml comment.  Shown in
 				same comment that database used is output in.
-*g:xqmarklogic_defaultShowDb*	- Turns on (1) or off (0) showing the Database
+*g:xqmarklogic_defaultShowDb*	Turns on (1) or off (0) showing the Database
 				in query output.  Default to True (1).  Shown
 				in same comment that duration output is in.
-*g:xqmarklogic_defaultShowCurlCmd*		- turns on (1) or off (0) query curl
+*g:xqmarklogic_defaultShowCurlCmd*		Turns on (1) or off (0) query curl
 				command used in query output.  Defaults to off
 				since command contains "--" which is invalid
 				in the XML comments.  Shown in comment
 				separate from other above settings.
-*g:xqmarklogic_noMappings*	- if true (set to 1) then \B and <C-CR> wont be mapped
+*g:xqmarklogic_noMappings*	If true (set to 1) then \B and <C-CR> wont be mapped
 	Examples: >
 		let g:xqmarklogic_defaultUser='labarbara_conrad'
 		let g:xqmarklogic_defaultPassword='barbados_or_hermes'
