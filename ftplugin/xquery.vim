@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.5
+" Version:      1.0.6
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -29,6 +29,8 @@
 "
 " TODO Prompt for password if unset
 " TODO output something useful when curl returns an error
+" TODO should provide a way to set customize mappings so that the results
+" window mappings can match
 
 
 if exists('b:loaded_xqmarklogic')
@@ -198,33 +200,33 @@ endfunction
 let s:thisfile = expand('<sfile>')
 
 if (!g:xqmarklogic_noMappings)
-    map <Leader>E :XQexploreDb<cr>
+    map <buffer> <Leader>E :XQexploreDb<cr>
 endif
 command -buffer XQexploreDb :execute s:ExploreDatabase()
 function! s:ExploreDatabase()
     "let l:old = b:xqmarklogic_noOutCleanup
     "let b:xqmarklogic_noOutCleanup = 1
-    call s:QueryGenericMarkLogic('@'.fnameescape(fnamemodify(s:thisfile, ':p:h'). '/exploreDb.xqy'))
+    call s:QueryGenericMarkLogic('@'.fnameescape(fnamemodify(s:thisfile, ':p:h'). '/exploreDb.xqy'), 0)
     "let b:xqmarklogic_noOutCleanup = l:old
 endfunction
-command -buffer XQlistDocsA :execute s:QueryGenericMarkLogic(<args>)
 
 " Running the Buffer as a Query
 if (!g:xqmarklogic_noMappings)
-    map <Leader>B :XQmlquery<cr>
-    map <C-CR> :XQmlquery<cr>
+    map <buffer> <Leader>B :XQmlquery<cr>
+    map <buffer> <C-CR> :XQmlquery<cr>
 endif
 command -buffer XQmlquery :execute s:QueryMarkLogic(expand('%'))
 function! s:QueryMarkLogic(fname)
     if &modified
         echoerr 'Buffer has been changed, using last saved version'
     endif
-    call s:QueryGenericMarkLogic('@'.a:fname)
+    call s:QueryGenericMarkLogic('@'.a:fname, 1)
 endfunction
 
 " Runs the query using curl
 " a:data - what to put after the -d" in the curl command
-function! s:QueryGenericMarkLogic(data)
+command -buffer XQmlqueryArgs :execute s:QueryGenericMarkLogic(<args>)
+function! s:QueryGenericMarkLogic(data, bufferQuery)
     " setup local settings
     let l:user      = b:xqmarklogic_user
     let l:password  = b:xqmarklogic_password
@@ -248,13 +250,25 @@ function! s:QueryGenericMarkLogic(data)
     " Use a 'nofile' window
     "botright new
     belowright new
+    setlocal buftype=nofile
+    setlocal filetype=xml
+
+    " Buffer Mappings for Result window
+    if (a:bufferQuery)
+        exec "map <buffer> <LEADER>B :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<CR>"
+        exec "map <buffer> <C-CR> :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<cr>"
+        map <buffer> <Leader>E <C-W><C-P>:XQexploreDb<cr>
+    else
+        exec "map <buffer> <LEADER>B :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<CR>"
+        exec "map <buffer> <C-CR> :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<cr>"
+        map <buffer> <Leader>E :q<CR>:XQexploreDb<cr>
+    endif
+    map <buffer> q :q<CR>
 
     if (l:showDb)
         let l:info .= ' db="' . l:db . '"'
     endif
 
-    setlocal buftype=nofile
-    setlocal filetype=xml
     let curlCmd='curl --digest --user ' . l:user . ':' . l:password . ' -s -X PUT -d"' . a:data . '" ' . l:uri . l:host . ':' . l:port  . l:script . '?db='.l:db
 
     if (l:showCurlCmd)

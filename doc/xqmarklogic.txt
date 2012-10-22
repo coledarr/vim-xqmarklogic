@@ -10,25 +10,29 @@ file.
 Note Vim 7.3 and later hides '|' and '*'.  If using an earlier version ignore
 any '*' or '|' surrounding Command and variable names.
 
-1. Introduction				|xqmarklogic-intro|
-2 Installation				|xqmarklogic-install|
+Introduction				|xqmarklogic-intro|
+Installation				|xqmarklogic-install|
 	MarkLogic configuration		|xqmarklogic-config-marklogic|
 	vimrc configuration		|xqmarklogic-config-vimrc|
-3. Security Considerations		|xqmarklogic-security|
-4. Commands				|xqmarklogic-commands|
-5. Customization:
+Security Considerations			|xqmarklogic-security|
+Mappings and Commands			|xqmarklogic-commands|
+Results Window				|xqmarklogic-results|
+Customization:
 	Options and Settings		|xqmarklogic-options|
 
 ==============================================================================
 INTRODUCTION						*xqmarklogic-intro*
 
-xqmarklogic maps <LEADER>B and <C-CR> (CONTROL-RETURN like QueryConsole) to
-run a XQuery against MarkLogic server using curl and a custom App Server
-running a short XQuery file.  It displays the results in a new window.  It was
-inspired by this webpage:
+xqmarklogic maps <LEADER>B and <C-CR> (CONTROL-RETURN like MarkLogic Query
+Console) to run an XQuery against MarkLogic server using curl and a custom App
+Server running a short XQuery file.  It displays the results in a new
+|xmarklogic-results| window.
+
+It was inspired by this webpage:
 http://superiorautomaticdictionary.com/vim-nirvana-interactive-xquery-with-marklogic
 
 Git repository at: http://github.com/coledarr/vim-xqmarklogic
+	Pull requests welcome.
 
 ==============================================================================
 INSTALLATION						*xqmarklogic-install*
@@ -97,7 +101,8 @@ well >
 For more details and other options and setting see |xqmarklogic-options|
 These settings can be set differently in different buffers.
 
-SECURITY CONSIDERATIONS				*xqmarklogic-security*
+==============================================================================
+SECURITY CONSIDERATIONS					*xqmarklogic-security*
 
 As mentioned above xq.xqy has some security considerations.  It can run any
 XQuery against any of the MarkLogic databases.  It is only as protected as the
@@ -113,22 +118,23 @@ stored in the viminfo file.  Pull requests with fixes for this are welcome.
 
 
 ==============================================================================
-3. Commands					*xqmarklogic-commands*
+MAPPINGS AND COMMANDS					*xqmarklogic-commands*
+							*xqmarklogic-mappings*
 
 <LEADER>B	Run current buffer as an XQuery against the MarkLogic
 		App Server you setup earlier.  This mapping runs XQmlquery, so
-		it is easy to remap this if needed.
-<CTRL-CR>	same as above.  Control-Return that MarkLogic QueryConsole
-		uses
+		it is easy to remap this if desired.
+<CTRL-CR>	Same as above.  Control-Return that MarkLogic QueryConsole
+		uses.
 <LEADER>E	Run XQexploreDb which will list for each document, a database
-		uri, the root element, and any collections it is part of.
+		URI, the root element, and any collections it is part of.
 		It is somewhat like the "Explore" button for a database in
 		MarkLogic's Query Console.
 
 NOTE If you want your own mappings set |g:xqmarklogic_noMappings| in your
-vimrc to skip setting the above.
+vimrc to turn off the above.
 
-*XQtoggleShowCurlCmd*	toggles showing curl command used in the output
+*XQtoggleShowCurlCmd*	toggles showing curl command used in the results
 			window in an XML comment.  It is off by default since
 			the command contains "--" and thus can't be in a valid
 			XML comment.
@@ -164,17 +170,32 @@ vimrc to skip setting the above.
 *XQdisplaySettings*	Displays what the current buffer settings are.
 
 *XQmlquery*		Run the current buffer against the MarkLogic server
-			and display the output in a new window.
+			and display the output in a new results window.
 
-*XQexploreDb*		Display in a new window each document in the current database, a
+*XQexploreDb*		Display in a new results window each document in the current database, a
 			database uri, the root element, and any collections it
 			is part of.  This is very similar to the "Explore"
 			button in MarkLogic's Query Console.
+==============================================================================
+RESULTS WINDOW						*xqmarklogic-results*
+
+The results window is a |buftype| nofile, with the filetype set to xml, and
+has a few mappings for convience.  These mappings are only set for the results
+window, and are not affected by |g:xqmarklogic_noMappings|.
+
+q		Close the results window.
+
+<LEADER>B	Will refresh the output of the window.
+<C-CR>		Will refresh the output of the window.
+<LEADER>E	Will to list document URIs and other
+		information.  Will refresh the results window if it was a
+database listing, otherwise opens a new window.
 
 ==============================================================================
-4. Customization: Options and Settings		*xqmarklogic-options*
+CUSTOMIZATION						*xqmarklogic-options*
+	Options and Settings
 
-	Global default values can be set in you |vimrc| file.
+Global default values can be set in you |vimrc| file.
 
 *g:xqmarklogic_defaultHost*	- the default Host name to use, if not set
 				uses 'localhost'
