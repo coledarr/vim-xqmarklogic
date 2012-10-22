@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.4
+" Version:      1.0.5
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -101,11 +101,11 @@ function! s:initSettings()
     endif
     let b:xqmarklogic_script=g:xqmarklogic_defaultScript
     if !exists('g:xqmarklogic_defaultDb')
-        let g:xqmarklogic_defaultDb="Documents"
+        let g:xqmarklogic_defaultDb='Documents'
     endif
     let b:xqmarklogic_db=g:xqmarklogic_defaultDb
     if !exists('g:xqmarklogic_defaultMaxLinesIndent')
-        let g:xqmarklogic_defaultMaxLinesIndent="400"
+        let g:xqmarklogic_defaultMaxLinesIndent='400'
     endif
     let b:xqmarklogic_maxLinesIndent=g:xqmarklogic_defaultMaxLinesIndent
 
@@ -194,15 +194,37 @@ function! s:DisplaySettings()
     echo 'g:xqmarklogic_noMappings	= ' . g:xqmarklogic_noMappings
 endfunction
 
-" Running the Query
+" List the documents in database
+let s:thisfile = expand('<sfile>')
+
+if (!g:xqmarklogic_noMappings)
+    map <Leader>E :XQexploreDb<cr>
+endif
+command -buffer XQexploreDb :execute s:ExploreDatabase()
+function! s:ExploreDatabase()
+    "let l:old = b:xqmarklogic_noOutCleanup
+    "let b:xqmarklogic_noOutCleanup = 1
+    call s:QueryGenericMarkLogic('@'.fnameescape(fnamemodify(s:thisfile, ':p:h'). '/exploreDb.xqy'))
+    "let b:xqmarklogic_noOutCleanup = l:old
+endfunction
+command -buffer XQlistDocsA :execute s:QueryGenericMarkLogic(<args>)
+
+" Running the Buffer as a Query
 if (!g:xqmarklogic_noMappings)
     map <Leader>B :XQmlquery<cr>
     map <C-CR> :XQmlquery<cr>
 endif
-command -buffer XQmlquery :execute s:QueryMarkLogic(expand("%"))
+command -buffer XQmlquery :execute s:QueryMarkLogic(expand('%'))
 function! s:QueryMarkLogic(fname)
-    let info        = ''
+    if &modified
+        echoerr 'Buffer has been changed, using last saved version'
+    endif
+    call s:QueryGenericMarkLogic('@'.a:fname)
+endfunction
 
+" Runs the query using curl
+" a:data - what to put after the -d" in the curl command
+function! s:QueryGenericMarkLogic(data)
     " setup local settings
     let l:user      = b:xqmarklogic_user
     let l:password  = b:xqmarklogic_password
@@ -216,11 +238,7 @@ function! s:QueryMarkLogic(fname)
     let l:showCurlCmd = b:xqmarklogic_showCurlCmd
     let l:showDuration = b:xqmarklogic_showDuration
     let l:showDb    = b:xqmarklogic_showDb
-    let l:info=""
-
-    if &modified
-        echoerr "Buffer has been changed, using last saved version"
-    endif
+    let l:info=''
 
     " Could use preview window
     "let s:out = tempname()
@@ -230,7 +248,6 @@ function! s:QueryMarkLogic(fname)
     " Use a 'nofile' window
     "botright new
     belowright new
-    
 
     if (l:showDb)
         let l:info .= ' db="' . l:db . '"'
@@ -238,7 +255,7 @@ function! s:QueryMarkLogic(fname)
 
     setlocal buftype=nofile
     setlocal filetype=xml
-    let curlCmd='curl --digest --user ' . l:user . ':' . l:password . ' -s -X PUT -d@"' . a:fname . '" ' . l:uri . l:host . ':' . l:port  . l:script . '?db='.l:db
+    let curlCmd='curl --digest --user ' . l:user . ':' . l:password . ' -s -X PUT -d"' . a:data . '" ' . l:uri . l:host . ':' . l:port  . l:script . '?db='.l:db
 
     if (l:showCurlCmd)
         call append(0, '<!-- ' . curlCmd . '  -->')
@@ -251,8 +268,8 @@ function! s:QueryMarkLogic(fname)
         let end=reltimestr(reltime(start))
         let l:info .= ' query_duration="' . end . '"'
     endif
-    if (l:info != "" )
-        call append(0, '<!-- ' . l:info .'" -->')
+    if (l:info != '' )
+        call append(0, '<!-- ' . l:info .' -->')
     endif
 
     " cleanup output

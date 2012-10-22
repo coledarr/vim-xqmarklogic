@@ -115,11 +115,15 @@ stored in the viminfo file.  Pull requests with fixes for this are welcome.
 ==============================================================================
 3. Commands					*xqmarklogic-commands*
 
-<leader>B	Run current buffer as an XQuery against the MarkLogic
+<LEADER>B	Run current buffer as an XQuery against the MarkLogic
 		App Server you setup earlier.  This mapping runs XQmlquery, so
 		it is easy to remap this if needed.
 <CTRL-CR>	same as above.  Control-Return that MarkLogic QueryConsole
 		uses
+<LEADER>E	Run XQexploreDb which will list for each document, a database
+		uri, the root element, and any collections it is part of.
+		It is somewhat like the "Explore" button for a database in
+		MarkLogic's Query Console.
 
 NOTE If you want your own mappings set |g:xqmarklogic_noMappings| in your
 vimrc to skip setting the above.
@@ -162,6 +166,10 @@ vimrc to skip setting the above.
 *XQmlquery*		Run the current buffer against the MarkLogic server
 			and display the output in a new window.
 
+*XQexploreDb*		Display in a new window each document in the current database, a
+			database uri, the root element, and any collections it
+			is part of.  This is very similar to the "Explore"
+			button in MarkLogic's Query Console.
 
 ==============================================================================
 4. Customization: Options and Settings		*xqmarklogic-options*
