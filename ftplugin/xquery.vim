@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.6
+" Version:      1.0.7
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -28,9 +28,7 @@
 " large responses this can be slow
 "
 " TODO Prompt for password if unset
-" TODO output something useful when curl returns an error
-" TODO should provide a way to set customize mappings so that the results
-" window mappings can match
+" TODO output something more useful when curl returns an error
 
 
 if exists('b:loaded_xqmarklogic')
@@ -38,43 +36,9 @@ if exists('b:loaded_xqmarklogic')
 endif
 let b:loaded_xqmarklogic=1
 
-" Toggle Options
-command -buffer XQtoggleShowCurlCmd :execute s:toggleShowCurlCmd()
-function! s:toggleShowCurlCmd()
-    if (b:xqmarklogic_showCurlCmd)
-        let b:xqmarklogic_showCurlCmd=0
-    else
-        let b:xqmarklogic_showCurlCmd=1
-    endif
-endfunction
-command -buffer XQtoggleShowDuration :execute s:toggleShowDuration()
-function! s:toggleShowDuration()
-    if (b:xqmarklogic_showDuration)
-        let b:xqmarklogic_showDuration=0
-    else
-        let b:xqmarklogic_showDuration=1
-    endif
-endfunction
-command -buffer XQtoggleShowDb :execute s:toggleShowDb()
-function! s:toggleShowDb()
-    if (b:xqmarklogic_showDb)
-        let b:xqmarklogic_showDb=0
-    else
-        let b:xqmarklogic_showDb=1
-    endif
-endfunction
-command -buffer XQtoggleOutCleanup :execute s:toggleOutCleanup()
-function! s:toggleOutCleanup()
-    if (b:xqmarklogic_noOutCleanup)
-        let b:xqmarklogic_noOutCleanup=0
-    else
-        let b:xqmarklogic_noOutCleanup=1
-    endif
-endfunction
-
-" Settings, init, & Commands to change them
-function! s:initSettings()
-    " Buffer settings
+" Settings, init, & Commands to change them 
+function! s:initSettings() "{{{
+    " Buffer settings {{{
     if !exists('g:xqmarklogic_defaultUser')
         let g:xqmarklogic_defaultUser='admin'
     endif
@@ -110,8 +74,9 @@ function! s:initSettings()
         let g:xqmarklogic_defaultMaxLinesIndent='400'
     endif
     let b:xqmarklogic_maxLinesIndent=g:xqmarklogic_defaultMaxLinesIndent
+    " }}}
 
-    " Buffer options
+    " Buffer options {{{
     if !exists('g:xqmarklogic_defaultShowCurlCmd')
         let g:xqmarklogic_defaultShowCurlCmd=0
     endif
@@ -129,14 +94,33 @@ function! s:initSettings()
         let g:xqmarklogic_defaultNoOutCleanup=0
     endif
     let b:xqmarklogic_noOutCleanup=g:xqmarklogic_defaultNoOutCleanup
+    " }}}
 
     " global settings
     if !exists('g:xqmarklogic_noMappings')
         let g:xqmarklogic_noMappings=0
     endif
+    if exists('g:mapleader')
+        let l:leader = g:mapleader
+    else
+        let l:leader = '\'
+    endif
+    if !exists('g:xqmarklogic_ExploreDBKey')
+        let g:xqmarklogic_ExploreDBKey = l:leader . 'E'
+    endif
+    if !exists('g:xqmarklogic_ExecQueryKey')
+        let g:xqmarklogic_ExecQueryKey = l:leader . 'B'
+    endif
+    if !exists('g:xqmarklogic_MLExecQueryKey')
+        let g:xqmarklogic_MLExecQueryKey = '<C-CR>'
+    endif
+
+
 endfunction
 call s:initSettings()
+" }}}
 
+" set option & commands {{{
 command -buffer -nargs=1 XQsetUser :execute s:setUser(<args>)
 function! s:setUser(user)
     let b:xqmarklogic_user = a:user
@@ -176,44 +160,89 @@ command -buffer -nargs=1 XQsetMaxLinesIndent :execute s:setMaxLinesIndent(<args>
 function! s:setMaxLinesIndent(lines)
     let b:xqmarklogic_maxLinesIndent=a:lines
 endfunction
+" end of set option & commands }}}
 
-" Display settings
+" Toggle Options & Commands {{{
+command -buffer XQtoggleShowCurlCmd :execute s:toggleShowCurlCmd()
+function! s:toggleShowCurlCmd()
+    if (b:xqmarklogic_showCurlCmd)
+        let b:xqmarklogic_showCurlCmd=0
+    else
+        let b:xqmarklogic_showCurlCmd=1
+    endif
+endfunction
+command -buffer XQtoggleShowDuration :execute s:toggleShowDuration()
+function! s:toggleShowDuration()
+    if (b:xqmarklogic_showDuration)
+        let b:xqmarklogic_showDuration=0
+    else
+        let b:xqmarklogic_showDuration=1
+    endif
+endfunction
+command -buffer XQtoggleShowDb :execute s:toggleShowDb()
+function! s:toggleShowDb()
+    if (b:xqmarklogic_showDb)
+        let b:xqmarklogic_showDb=0
+    else
+        let b:xqmarklogic_showDb=1
+    endif
+endfunction
+command -buffer XQtoggleOutCleanup :execute s:toggleOutCleanup()
+function! s:toggleOutCleanup()
+    if (b:xqmarklogic_noOutCleanup)
+        let b:xqmarklogic_noOutCleanup=0
+    else
+        let b:xqmarklogic_noOutCleanup=1
+    endif
+endfunction
+" end of toggle commands }}}
+
+" Display settings {{{
 command -buffer XQdisplaySettings :execute s:DisplaySettings()
 function! s:DisplaySettings()
+    echo ' --- settings --- '
+    echo 'b:xqmarklogic_host	= ' . b:xqmarklogic_host
+    echo 'b:xqmarklogic_uri	= ' . b:xqmarklogic_uri
+    echo 'b:xqmarklogic_port	= ' . b:xqmarklogic_port
     echo 'b:xqmarklogic_user	= ' . b:xqmarklogic_user
     echo 'b:xqmarklogic_password	= ' . b:xqmarklogic_password
-    echo 'b:xqmarklogic_uri	= ' . b:xqmarklogic_uri
-    echo 'b:xqmarklogic_host	= ' . b:xqmarklogic_host
-    echo 'b:xqmarklogic_port	= ' . b:xqmarklogic_port
     echo 'b:xqmarklogic_script	= ' . b:xqmarklogic_script
     echo 'b:xqmarklogic_db	= ' . b:xqmarklogic_db
+    echo 'b:xqmarklogic_maxLinesIndent = ' . b:xqmarklogic_maxLinesIndent
     echo ' --- options --- '
     echo 'b:xqmarklogic_noOutCleanup	= ' . b:xqmarklogic_noOutCleanup
-    echo 'b:xqmarklogic_showCurlCmd	= ' . b:xqmarklogic_showCurlCmd
     echo 'b:xqmarklogic_showDuration	= ' . b:xqmarklogic_showDuration
     echo 'b:xqmarklogic_showDb		= ' . b:xqmarklogic_showDb
+    echo 'b:xqmarklogic_showCurlCmd	= ' . b:xqmarklogic_showCurlCmd
     echo ' --- global ---'
     echo 'g:xqmarklogic_noMappings	= ' . g:xqmarklogic_noMappings
-endfunction
+    echo 'g:xqmarklogic_ExploreDBKey	= ' . g:xqmarklogic_ExploreDBKey
+    echo 'g:xqmarklogic_ExecQueryKey	= ' . g:xqmarklogic_ExecQueryKey
+    echo 'g:xqmarklogic_MLExecQueryKey	= ' . g:xqmarklogic_MLExecQueryKey
+endfunction "}}}
 
 " List the documents in database
 let s:thisfile = expand('<sfile>')
 
+" Mappings, commands, and functions {{{
 if (!g:xqmarklogic_noMappings)
-    map <buffer> <Leader>E :XQexploreDb<cr>
+    if g:xqmarklogic_ExploreDBKey != ''
+        exec 'map <buffer> ' . g:xqmarklogic_ExploreDBKey . ' :XQexploreDb<cr>'
+    endif
 endif
 command -buffer XQexploreDb :execute s:ExploreDatabase()
 function! s:ExploreDatabase()
-    "let l:old = b:xqmarklogic_noOutCleanup
-    "let b:xqmarklogic_noOutCleanup = 1
     call s:QueryGenericMarkLogic('@'.fnameescape(fnamemodify(s:thisfile, ':p:h'). '/exploreDb.xqy'), 0)
-    "let b:xqmarklogic_noOutCleanup = l:old
 endfunction
 
 " Running the Buffer as a Query
 if (!g:xqmarklogic_noMappings)
-    map <buffer> <Leader>B :XQmlquery<cr>
-    map <buffer> <C-CR> :XQmlquery<cr>
+    if g:xqmarklogic_ExecQueryKey != ''
+        exec 'map <buffer> ' . g:xqmarklogic_ExecQueryKey . ' :XQmlquery<cr>'
+    endif
+    if g:xqmarklogic_MLExecQueryKey != ''
+        exec 'map <buffer> ' . g:xqmarklogic_MLExecQueryKey . ' :XQmlquery<cr>'
+    endif
 endif
 command -buffer XQmlquery :execute s:QueryMarkLogic(expand('%'))
 function! s:QueryMarkLogic(fname)
@@ -222,6 +251,7 @@ function! s:QueryMarkLogic(fname)
     endif
     call s:QueryGenericMarkLogic('@'.a:fname, 1)
 endfunction
+" }}}
 
 " Runs the query using curl
 " a:data - what to put after the -d" in the curl command
@@ -255,13 +285,19 @@ function! s:QueryGenericMarkLogic(data, bufferQuery)
 
     " Buffer Mappings for Result window
     if (a:bufferQuery)
-        exec "map <buffer> <LEADER>B :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<CR>"
-        exec "map <buffer> <C-CR> :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<cr>"
-        map <buffer> <Leader>E <C-W><C-P>:XQexploreDb<cr>
+        if g:xqmarklogic_ExploreDBKey != ''
+            exec "map <buffer> " . g:xqmarklogic_ExploreDBKey . " <C-W><C-P>:XQexploreDb<cr>"
+        endif
     else
-        exec "map <buffer> <LEADER>B :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<CR>"
-        exec "map <buffer> <C-CR> :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<cr>"
-        map <buffer> <Leader>E :q<CR>:XQexploreDb<cr>
+        if g:xqmarklogic_ExploreDBKey != ''
+            exec "map <buffer> " . g:xqmarklogic_ExploreDBKey . " :q<CR>:XQexploreDb<cr>"
+        endif
+    endif
+    if g:xqmarklogic_ExecQueryKey != ''
+        exec "map <buffer> " . g:xqmarklogic_ExecQueryKey . " :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<CR>"
+    endif
+    if g:xqmarklogic_MLExecQueryKey != ''
+        exec "map <buffer> " . g:xqmarklogic_MLExecQueryKey . " :q<CR>:XQmlqueryArgs \"" . a:data . "\", 1<cr>"
     endif
     map <buffer> q :q<CR>
 
@@ -296,4 +332,4 @@ function! s:QueryGenericMarkLogic(data, bufferQuery)
     endif
 endfunction
 
-" vim: foldmethod=marker foldlevel=5:
+" vim: foldmethod=marker foldlevel=0:
