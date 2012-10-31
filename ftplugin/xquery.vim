@@ -29,6 +29,7 @@
 "
 " TODO Prompt for password if unset
 " TODO output something more useful when curl returns an error
+" TODO should probably use <Plug>...
 
 
 if exists('b:loaded_xqmarklogic')
