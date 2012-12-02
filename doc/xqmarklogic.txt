@@ -3,7 +3,7 @@
 
 Author: Darren Cole http://github.com/coledarr/vim-xqmarklogic
 
-Integrating MarkLogic xqueries into vim, and displays the result in another
+Integrates MarkLogic XQueries into vim, and displays the result in another
 window.  This is a filetype plugin that is only available when in an XQuery
 file.
 
@@ -44,7 +44,7 @@ Few ways to do this:
 	1. use pathogen.vim https://github.com/tpope/vim-pathogen
 	2. use vundle https://github.com/gmarik/vundle
 	3. use another plugin manager
-	4. Otherwise copy the doc/* and ftplugin/* to your cooresponding ~/.vim/
+	4. Otherwise copy the doc/* and ftplugin/* to your corresponding ~/.vim/
 	directories (create them if they don't exist yet).  Run :helptags
 
 See pathogen.vim's documentation to set it up (it's easy). Then put the
@@ -54,7 +54,7 @@ Vundle has even more features (can update plugins automatically) See the
 documentation from the link above.
 
 MARKLOGIC CONFIGURATION				*xqmarklogic-config-marklogic*
-You will need MarkLogic running, a MarkLogic App Server setup to run a xquery,
+You will need MarkLogic running, a MarkLogic App Server setup to run a XQuery,
 curl, and this xqmarklogic file type plugin.  MarkLogic provides an XML
 database, and even has a free version called MarkLogic Express.
 	See: http://www.marklogic.com/
@@ -156,8 +156,12 @@ COMMANDS						*xqmarklogic-commands*
 
 *XQsetUser*		sets the user to use for login to the string argument
 
-*XQsetPassword*		sets the password to use for login to the string
-			argument
+*XQsetPassword*		prompts for the password to use in the current XQuery
+			buffer.
+
+*XQsetDefaultPassword*	prompts for the default password to use in all XQuery
+			buffers if not already set
+			
 *XQsetURI*		sets the URI to use to the string argument
 
 *XQsetHost*		sets the host to use to the string argument
@@ -178,14 +182,14 @@ COMMANDS						*xqmarklogic-commands*
 			and display the output in a new results window.
 
 *XQexploreDb*		Display in a new results window each document in the current database, a
-			database uri, the root element, and any collections it
+			database URI, the root element, and any collections it
 			is part of.  This is very similar to the "Explore"
 			button in MarkLogic's Query Console.
 ==============================================================================
 RESULTS WINDOW						*xqmarklogic-results*
 
 The results window is a |buftype| nofile, with the filetype set to xml, and
-has a few mappings for convience.  These mappings are only set for the results
+has a few mappings for convenience.  These mappings are only set for the results
 window, and are not affected by |g:xqmarklogic_noMappings|.
 
 q		Close the results window.
@@ -212,8 +216,8 @@ Global default values can be set in you |vimrc| file.
 				(which is used by MarkLogic by default and
 				wont work)
 *g:xqmarklogic_defaultUser*	The default User, if not set uses 'admin'
-*g:xqmarklogic_defaultPassword*	The default password to use, if not set
-				you will probably have problems.
+*g:xqmarklogic_defaultPassword*	The default password to use, instead of
+				prompting for it on first query of each buffer
 *g:xqmarklogic_defaultScript*	The default name of the xq.xqy, if not set
 				uses '/xq.xqy'
 *g:xqmarklogic_defaultDb*		The default Database to query against, if

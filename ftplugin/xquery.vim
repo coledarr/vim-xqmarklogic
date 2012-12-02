@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.0.7
+" Version:      1.1.0
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
@@ -27,8 +27,7 @@
 " Assumes xml responses, for now tries to break up lines and re-indent For
 " large responses this can be slow
 "
-" TODO Prompt for password if unset
-" TODO output something more useful when curl returns an error
+" TODO output something more useful when curl return errors or status
 " TODO should probably use <Plug>...
 
 
@@ -44,13 +43,11 @@ function! s:initSettings() "{{{
         let g:xqmarklogic_defaultUser='admin'
     endif
     let b:xqmarklogic_user=g:xqmarklogic_defaultUser
-    " TODO Want error if no global password set
-    if !exists('g:xqmarklogic_defaultPassword')
-        let g:xqmarklogic_defaultPassword=''
-        let b:xqmarklogic_password=''
-        unlet b:xqmarklogic_password
+    " only set b:xqmarklogic_password if there is a default password
+    " then prompt for it if needed later
+    if exists('g:xqmarklogic_defaultPassword')
+        let b:xqmarklogic_password=g:xqmarklogic_defaultPassword
     endif
-    let b:xqmarklogic_password=g:xqmarklogic_defaultPassword
     if !exists('g:xqmarklogic_defaultURI')
         let g:xqmarklogic_defaultURI='http://'
     endif
@@ -127,9 +124,14 @@ function! s:setUser(user)
     let b:xqmarklogic_user = a:user
 endfunction
 
-command -buffer -nargs=1 XQsetPassword :execute s:setPort(<args>)
-function! s:setPassword(password)
-    let b:xqmarklogic_password = a:password
+command -buffer XQsetPassword :execute s:setPassword()
+function! s:setPassword()
+    let b:xqmarklogic_password = inputsecret('MarkLogic ' . b:xqmarklogic_user . ' password:')
+endfunction
+
+command -buffer XQsetDefaultPassword :execute s:setDefaultPassword()
+function! s:setDefaultPassword()
+    let g:xqmarklogic_defaultPassword = inputsecret('MarkLogic ' . b:xqmarklogic_user . ' password:')
 endfunction
 
 command -buffer -nargs=1 XQsetURI :execute s:setURI(<args>)
@@ -260,7 +262,6 @@ command -buffer XQmlqueryArgs :execute s:QueryGenericMarkLogic(<args>)
 function! s:QueryGenericMarkLogic(data, bufferQuery)
     " setup local settings
     let l:user      = b:xqmarklogic_user
-    let l:password  = b:xqmarklogic_password
     let l:uri       = b:xqmarklogic_uri
     let l:host      = b:xqmarklogic_host
     let l:port      = b:xqmarklogic_port
@@ -272,6 +273,27 @@ function! s:QueryGenericMarkLogic(data, bufferQuery)
     let l:showDuration = b:xqmarklogic_showDuration
     let l:showDb    = b:xqmarklogic_showDb
     let l:info=''
+
+    " prompt for password if b:xqmarklogic_password and
+    " g:xqmarklogic_defaultPassword are unset
+    let l:password = ''
+    if !exists('b:xqmarklogic_password')
+        if !exists('g:xqmarklogic_defaultPassword')
+            let l:password = inputsecret('MarkLogic ' . b:xqmarklogic_user . ' password:')
+            " since default password was unset assume we should use the same
+            " for all passwords
+            " TODO decide if this is best.  Might be better not to do this,
+            " and let XQsetDefaultPassword provide a solution instead
+            "let g:xqmarklogic_defaultPassword = l:password
+        else
+            " since default exists use that password
+            let l:password = g:xqmarklogic_defaultPassword
+        endif
+        " keep password for next time
+        let b:xqmarklogic_password = l:password
+    else
+        let l:password  = b:xqmarklogic_password
+    endif
 
     " Could use preview window
     "let s:out = tempname()
@@ -306,7 +328,7 @@ function! s:QueryGenericMarkLogic(data, bufferQuery)
         let l:info .= ' db="' . l:db . '"'
     endif
 
-    let curlCmd='curl --digest --user ' . l:user . ':' . l:password . ' -s -X PUT -d"' . a:data . '" ' . l:uri . l:host . ':' . l:port  . l:script . '?db='.l:db
+    let curlCmd='curl --digest --user ' . l:user . ':' . l:password . ' -s -X PUT -d"' . a:data . '" ' . "'" . l:uri . l:host . ':' . l:port  . l:script . '?db='.l:db . "'"
 
     if (l:showCurlCmd)
         call append(0, '<!-- ' . curlCmd . '  -->')
