@@ -8,5 +8,9 @@ return
             (: Assume a binary document if root element name is "" :)
             then <binary-node>1</binary-node>
             else <root-element>{$doc/name(/*)}</root-element>}
+            {if (fn:empty(xdmp:document-properties($uri)))
+                (: if empty, no properties :)
+                then <properties>false</properties>
+                else <properties>true</properties>}
       <collections>{xdmp:document-get-collections($uri)}</collections>
     </document>

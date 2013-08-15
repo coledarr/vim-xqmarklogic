@@ -1,6 +1,6 @@
 " xquery.vim - <Leader>B or <C-CR> run buffer against marklogic as an xquery
 " Maintainer:   Darren Cole <http://github.com/coledarr/vim-xqmarklogic>
-" Version:      1.1.0
+" Version:      1.1.1
 " TODO: Add support for: GetLatestVimScripts: ### ### :AutoInstall: xqmarklogic
 " TODO: see *glvs-plugins* might not work, but should at least try
 " 
